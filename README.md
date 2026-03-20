@@ -19,7 +19,7 @@ I designed this in a vertical configuration (inspired by city planning) to keep 
 * **Layer 2 (The Brain & Sensors):** This is where the electronics live. I installed industrial-grade NPK and moisture sensors here. The plumbing from the bottom passes through this layer to reach the top, which was a total nightmare to route without kinks.
 * **Layer 3 (The Grow Bed):** I went with a transparent acrylic finish for the soil bed so you can actually see the root health. It uses 360-degree bubblers to make sure water reaches everywhere with zero waste.
 * **The AI Track:** Encircling the top is a custom circular track. I built a small car that carries the Pi Zero and Camera, revolving around the plants every 30 minutes to catch every angle.
-
+  This is the link for the 3d model in step i didnt upload it here because of its size https://drive.google.com/file/d/1caedlcHiUJ2DHqxGwvVZIDkTWpKjw0eq/view?usp=drive_link
 ---
 
 ## Schematic & PCB Design
