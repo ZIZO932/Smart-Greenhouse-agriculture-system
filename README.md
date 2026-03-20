@@ -21,6 +21,8 @@ I designed this in a vertical configuration (inspired by city planning) to keep 
 * **The AI Track:** Encircling the top is a custom circular track. I built a small car that carries the Pi Zero and Camera, revolving around the plants every 30 minutes to catch every angle.
 
    **This is the link for the 3d model in step i didnt upload it here because of its size** https://drive.google.com/file/d/1caedlcHiUJ2DHqxGwvVZIDkTWpKjw0eq/view?usp=drive_link
+  it is also found as a .zip file in the CAD folder
+
 ---
 
 ## Schematic & PCB Design
