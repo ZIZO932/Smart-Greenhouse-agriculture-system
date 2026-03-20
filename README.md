@@ -51,9 +51,4 @@ The workflow is simple: the car wakes up every 30 minutes, does one full lap aro
 
 ---
 
-## Firmware Highlights
-The code is written in Python with a heavy focus on don't break anything.
-and you will find it attached in the repo.
-
----
 
