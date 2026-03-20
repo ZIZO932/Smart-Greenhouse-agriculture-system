@@ -1,2 +1,2 @@
 # Smart-Greenhouse-agriculture-system
-The Smart Greenhouse agriculture system uses a 4-layer design to protect crops like Basil from Egypt's heat and water shortages. 
+The Smart Greenhouse agriculture system uses a 4-layer design to protect crops like Basil from Egypt's heat and water shortages. A Raspberry Pi Pico W monitors industrial NPK and moisture sensors, then automatically triggers pumps and fans to keep everything in the perfect range. To top it off, an AI-powered camera on a circular track patrols the plants to catch diseases early.
