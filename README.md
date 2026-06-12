@@ -90,7 +90,7 @@ The workflow is simple: the car wakes up every 30 minutes, does one full lap aro
 
 After the design got approved, it was time to build the prototype — and as always, the real world had different plans than the 3D model.
 
-![Final Prototype](https://stasis.hackclub-assets.com/images/1781289170486-yywy2b.png)
+![image](https://stasis.hackclub-assets.com/images/1781289180506-8guwwl.png)
 
 The body is built from MDF wood with a polyethylene cover for the grow layer. First attempt used nails, which couldn't hold the weight and the frame fell apart — switched to screws and it held solid after that. Pumps and tubing were routed through the layers down to the soil bed.
 
