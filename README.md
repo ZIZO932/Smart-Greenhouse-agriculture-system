@@ -84,3 +84,24 @@ The workflow is simple: the car wakes up every 30 minutes, does one full lap aro
 | **Raspberry Pi Zero 2W** | 38.28 | 1 | 38.28 | [Link](https://devboardsmarket.com/products/raspberry-pi-zero-2-w) | DEV boards |
 | **Raspberry Pi Pico W** | 16.27 | 1 | 16.27 | [Link](https://www.ram-e-shop.com/ar/shop/rpi-pico-w-raspberry-pi-pico-w-wifi-8524) | RAM electronics |
 | **GRAND TOTAL** | | | **$189.94** | | |
+
+
+## The Build: From CAD to Reality
+
+After the design got approved, it was time to build the prototype — and as always, the real world had different plans than the 3D model.
+
+![Final Prototype](https://stasis.hackclub-assets.com/images/1781289170486-yywy2b.png)
+
+The body is built from MDF wood with a polyethylene cover for the grow layer. First attempt used nails, which couldn't hold the weight and the frame fell apart — switched to screws and it held solid after that. Pumps and tubing were routed through the layers down to the soil bed.
+
+![Circuit](https://stasis.hackclub-assets.com/images/1781287824241-pr5loz.jpeg)
+
+For the circuit, I soldered up the power supply (3.3V/5V step-downs, 10A fuse), wired in the sensors (BH1750, DS18B20, NPK via RS-485/MAX485) and the relay module driving the pumps, fans, Peltier module, and LEDs. Fried a Pico along the way and switched to an ESP32.
+
+![Dashboard](https://stasis.hackclub-assets.com/images/1781288574691-5xvsad.png)
+
+Real-time data flows through MQTT (Mosquitto) into a web dashboard built with HTML/CSS/JS and Grafana, showing live sensor readings against the ideal ranges for sweet basil.
+
+Ran a full 6-hour test with everything powered on together — sensors reading correctly, pumps responding properly, and all values staying within range. The Smart Greenhouse Agriculture System is built and working. 🌱
+
+
