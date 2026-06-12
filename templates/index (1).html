@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>VERDEX | Smart Agriculture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+    <style>
+        :root{--primary:#4CAF50;--secondary:#81C784;--accent:#FFC107;--dark:#2E3440;--light:#F3F4F6;--white:#FFFFFF;--danger:#EF4444;--text:#412A22}
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif}
+        body{background:linear-gradient(135deg,#fdfbfb 0%,#ebedee 100%);color:var(--text);min-height:100vh;padding:2rem}
+        .container{max-width:1400px;margin:0 auto}
+        header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;background:var(--white);padding:1.5rem 2rem;border-radius:24px;box-shadow:0 10px 25px rgba(0,0,0,0.05)}
+        .logo-area{display:flex;align-items:center;gap:1rem}
+        .logo-icon{width:48px;height:48px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;font-weight:700}
+        .logo-text h1{font-size:1.8rem;letter-spacing:-1px;color:var(--dark)}
+        .logo-text p{font-size:0.9rem;color:var(--primary);font-weight:600;text-transform:uppercase}
+        .plant-selector{display:flex;gap:1rem}
+        .plant-btn{padding:0.8rem 1.5rem;border:none;border-radius:14px;background:var(--light);color:var(--text);font-weight:600;cursor:pointer;transition:all 0.3s ease;display:flex;align-items:center;gap:0.5rem}
+        .plant-btn:hover{background:var(--secondary);color:white}
+        .plant-btn.active{background:var(--primary);color:white;box-shadow:0 4px 15px rgba(76,175,80,0.3)}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem;margin-bottom:2rem}
+        .card{background:var(--white);padding:2rem;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.04);transition:transform 0.3s ease;position:relative;overflow:hidden}
+        .card:hover{transform:translateY(-5px)}
+        .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+        .card-title{display:flex;align-items:center;gap:0.8rem;font-size:1.1rem;font-weight:700;color:var(--dark)}
+        .card-title span{font-size:1.5rem}
+        .value-display{font-size:2.8rem;font-weight:700;margin-bottom:0.5rem;color:var(--dark)}
+        .unit{font-size:1rem;color:#888;font-weight:400;margin-left:0.5rem}
+        .chart-container{height:220px;margin-top:1rem;position:relative}
+        .status-badge{padding:0.4rem 0.8rem;border-radius:10px;font-size:0.85rem;font-weight:600;text-transform:uppercase}
+        .status-optimal{background:rgba(76,175,80,0.1);color:var(--primary)}
+        .status-warning{background:rgba(255,193,7,0.1);color:var(--accent)}
+        .status-danger{background:rgba(239,68,68,0.1);color:var(--danger)}
+        .actuators-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:2rem}
+        .actuator-card{background:var(--white);padding:1.2rem;border-radius:20px;display:flex;flex-direction:column;align-items:center;gap:0.8rem;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.02);border:2px solid transparent;transition:all 0.3s ease}
+        .actuator-card.active{border-color:var(--primary);background:rgba(76,175,80,0.05)}
+        .actuator-icon{font-size:1.8rem;opacity:0.8}
+        .actuator-name{font-size:0.85rem;font-weight:600;color:#666}
+        .actuator-status{font-size:0.75rem;font-weight:700;text-transform:uppercase}
+        .actuator-status.on{color:var(--primary)}
+        .actuator-status.off{color:#AAA}
+        .table-card{grid-column:1/-1;background:var(--white);padding:2rem;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.04)}
+        table{width:100%;border-collapse:collapse;margin-top:1.5rem}
+        th{text-align:left;padding:1.2rem;color:#888;font-weight:600;font-size:0.9rem;border-bottom:1px solid #EEE}
+        td{padding:1.2rem;font-weight:600;color:var(--dark);border-bottom:1px solid #F9F9F9}
+        .range-tag{display:inline-block;padding:0.4rem 0.8rem;background:var(--light);border-radius:8px;font-size:0.9rem}
+        @media (max-width:768px){.grid{grid-template-columns:1fr}.actuators-grid{grid-template-columns:repeat(2,1fr)}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-area">
+                <div class="logo-icon">V</div>
+                <div class="logo-text">
+                    <h1>VERDEX</h1>
+                    <p>Smart Greenhouse Systems</p>
+                </div>
+            </div>
+            <div class="plant-selector">
+                <button class="plant-btn active" data-plant="basil" onclick="selectPlant('basil')">🌿 Sweet Basil</button>
+                <button class="plant-btn" data-plant="stevia" onclick="selectPlant('stevia')">🍃 Stevia Sugar</button>
+            </div>
+        </header>
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span>🌡️</span> Temperature</div>
+                    <select class="plant-btn" onchange="fetchChart('temp',this.value)" style="padding:0.4rem 0.8rem;font-size:0.8rem">
+                        <option value="today">Today</option>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                    </select>
+                </div>
+                <div class="value-display" id="cur-temp">--<span class="unit">°C</span></div>
+                <div class="chart-container"><canvas id="chartTemp"></canvas></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span>☀️</span> Light Intensity</div>
+                    <select class="plant-btn" onchange="fetchChart('light',this.value)" style="padding:0.4rem 0.8rem;font-size:0.8rem">
+                        <option value="today">Today</option>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                    </select>
+                </div>
+                <div class="value-display" id="cur-light">--<span class="unit">lux</span></div>
+                <div class="chart-container"><canvas id="chartLight"></canvas></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span>💧</span> Soil Moisture</div>
+                    <select class="plant-btn" onchange="fetchChart('moisture',this.value)" style="padding:0.4rem 0.8rem;font-size:0.8rem">
+                        <option value="today">Today</option>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                    </select>
+                </div>
+                <div class="value-display" id="cur-moisture">--<span class="unit">% VWC</span></div>
+                <div class="chart-container"><canvas id="chartMoisture"></canvas></div>
+            </div>
+            <div class="card" style="grid-column:span 1">
+                <div class="card-header">
+                    <div class="card-title"><span>🧪</span> NPK Levels</div>
+                    <select class="plant-btn" onchange="fetchChart('npk',this.value)" style="padding:0.4rem 0.8rem;font-size:0.8rem">
+                        <option value="today">Today</option>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                    </select>
+                </div>
+                <div class="value-display" id="cur-npk" style="font-size:1.2rem">N: -- | P: -- | K: --</div>
+                <div class="chart-container"><canvas id="chartNPK"></canvas></div>
+            </div>
+        </div>
+        <div class="actuators-grid" id="actuator-grid">
+            <div class="actuator-card" data-id="0"><div class="actuator-icon">🚿</div><div class="actuator-name">Water Pump</div><div class="actuator-status off">OFF</div></div>
+            <div class="actuator-card" data-id="1"><div class="actuator-icon">🧪</div><div class="actuator-name">Nitrogen (N)</div><div class="actuator-status off">OFF</div></div>
+            <div class="actuator-card" data-id="2"><div class="actuator-icon">🧪</div><div class="actuator-name">Phosphorus (P)</div><div class="actuator-status off">OFF</div></div>
+            <div class="actuator-card" data-id="3"><div class="actuator-icon">🧪</div><div class="actuator-name">Potassium (K)</div><div class="actuator-status off">OFF</div></div>
+            <div class="actuator-card" data-id="4"><div class="actuator-icon">❄️</div><div class="actuator-name">Peltier Cooler</div><div class="actuator-status off">OFF</div></div>
+            <div class="actuator-card" data-id="5"><div class="actuator-icon">💨</div><div class="actuator-name">Peltier Fan</div><div class="actuator-status off">OFF</div></div>
+            <div class="actuator-card" data-id="6"><div class="actuator-icon">💡</div><div class="actuator-name">Grow Light</div><div class="actuator-status off">OFF</div></div>
+            <div class="actuator-card" data-id="7"><div class="actuator-icon">🌀</div><div class="actuator-name">Air Fan</div><div class="actuator-status off">OFF</div></div>
+        </div>
+        <div class="table-card">
+            <div class="card-header">
+                <div class="card-title"><span>📋</span> Optimal Growth Parameters (<span id="ideal-plant-name">Sweet Basil</span>)</div>
+            </div>
+            <table>
+                <thead><tr><th>Parameter</th><th>Target Range</th><th>Unit</th></tr></thead>
+                <tbody id="ideal-table"></tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        let activePlant='basil';
+        const plantLabels={basil:'Sweet Basil',stevia:'Stevia Sugar'};
+        const C={temp:{border:'#EF4444',bg:'rgba(239,68,68,0.1)'},light:{border:'#FFC107',bg:'rgba(255,193,7,0.1)'},moisture:{border:'#3B82F6',bg:'rgba(59,130,246,0.1)'},n:{border:'#10B981',bg:'rgba(16,185,129,0.05)'},p:{border:'#8B5CF6',bg:'rgba(139,92,246,0.05)'},k:{border:'#F59E0B',bg:'rgba(245,158,11,0.05)'}};
+        const idealRanges={basil:{temp:[20,30],light:[4000,8000],moisture:[50,70],n:[150,250],p:[40,70],k:[200,300]},stevia:{temp:[20,30],light:[4000,8000],moisture:[50,60],n:[40,80],p:[20,40],k:[40,100]}};
+        const idealData={basil:[{param:'Temperature',range:'20 – 30',unit:'°C'},{param:'Light Intensity',range:'4,000 – 8,000',unit:'lux'},{param:'Soil Moisture',range:'50 – 70',unit:'% VWC'},{param:'Nitrogen (N)',range:'150 – 250',unit:'mg/kg'},{param:'Phosphorus (P)',range:'40 – 70',unit:'mg/kg'},{param:'Potassium (K)',range:'200 – 300',unit:'mg/kg'}],stevia:[{param:'Temperature',range:'20 – 30',unit:'°C'},{param:'Light Intensity',range:'4,000 – 8,000',unit:'lux'},{param:'Soil Moisture',range:'50 – 60',unit:'% VWC'},{param:'Nitrogen (N)',range:'40 – 80',unit:'mg/kg'},{param:'Phosphorus (P)',range:'20 – 40',unit:'mg/kg'},{param:'Potassium (K)',range:'40 – 100',unit:'mg/kg'}]};
+        const uncertainty={temp:1.0,light:25,moisture:3,npk:2};
+        const errorBarPlugin={id:'errorBars',afterDatasetsDraw(chart){const ctx=chart.ctx;chart.data.datasets.forEach((ds,di)=>{if(!ds.errorBars)return;const meta=chart.getDatasetMeta(di);meta.data.forEach((pt,i)=>{const err=ds.errorBars[i];if(err==null||pt.skip)return;const x=pt.x,yT=chart.scales.y.getPixelForValue(ds.data[i]+err),yB=chart.scales.y.getPixelForValue(ds.data[i]-err);ctx.save();ctx.strokeStyle=ds.borderColor;ctx.lineWidth=1;ctx.globalAlpha=0.5;ctx.beginPath();ctx.moveTo(x,yT);ctx.lineTo(x,yB);ctx.stroke();ctx.beginPath();ctx.moveTo(x-3,yT);ctx.lineTo(x+3,yT);ctx.stroke();ctx.beginPath();ctx.moveTo(x-3,yB);ctx.lineTo(x+3,yB);ctx.stroke();ctx.restore()})})}};
+        Chart.register(errorBarPlugin);
+        function idealAnnotations(keys){const r=idealRanges[activePlant];const anns={};keys.forEach(({key,color,label})=>{const val=r[key];if(Array.isArray(val)){anns[key+'Min']={type:'line',yMin:val[0],yMax:val[0],borderColor:color,borderWidth:1.5,borderDash:[6,4],label:{display:true,content:'Min '+val[0],position:'start',font:{size:10,weight:'700'},color:color,backgroundColor:'rgba(255,255,255,0.9)',padding:4}};anns[key+'Max']={type:'line',yMin:val[1],yMax:val[1],borderColor:color,borderWidth:1.5,borderDash:[6,4],label:{display:true,content:'Max '+val[1],position:'end',font:{size:10,weight:'700'},color:color,backgroundColor:'rgba(255,255,255,0.9)',padding:4}}}else{anns[key+'Ideal']={type:'line',yMin:val,yMax:val,borderColor:color,borderWidth:1.5,borderDash:[6,4],label:{display:true,content:(label||key.toUpperCase())+' Ideal: '+val,position:'start',font:{size:10,weight:'700'},color:color,backgroundColor:'rgba(255,255,255,0.9)',padding:4}}}});return anns}
+        function baseOpts(yL,anns,yMin,yMax){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},annotation:{annotations:idealAnnotations(anns)}},scales:{x:{title:{display:true,text:'Reading #',color:'#412A22',font:{weight:'600'}},ticks:{maxTicksLimit:10,color:'#412A22'}},y:{title:{display:true,text:yL,color:'#412A22',font:{weight:'600'}},ticks:{color:'#412A22'},min:yMin,max:yMax}},elements:{point:{radius:2},line:{tension:0.3,borderWidth:2}}}}
+        function makeDS(l,c){return{label:l,data:[],errorBars:[],borderColor:c.border,backgroundColor:c.bg,fill:true,spanGaps:true}}
+        let charts={};
+        function initCharts(){
+            charts.temp=new Chart(document.getElementById('chartTemp'),{type:'line',data:{labels:[],datasets:[makeDS('Temp',C.temp)]},options:baseOpts('°C',[{key:'temp',color:C.temp.border}],12,40)});
+            charts.light=new Chart(document.getElementById('chartLight'),{type:'line',data:{labels:[],datasets:[makeDS('Light',C.light)]},options:baseOpts('lux',[{key:'light',color:C.light.border}],0,10000)});
+            charts.moisture=new Chart(document.getElementById('chartMoisture'),{type:'line',data:{labels:[],datasets:[makeDS('Moisture',C.moisture)]},options:baseOpts('%',[{key:'moisture',color:C.moisture.border}],0,100)});
+            const nO=baseOpts('mg/kg',[{key:'n',color:C.n.border,label:'N'},{key:'p',color:C.p.border,label:'P'},{key:'k',color:C.k.border,label:'K'}]);
+            nO.plugins.legend={display:true,position:'top',labels:{color:'#412A22',font:{weight:'600'}}};
+            charts.npk=new Chart(document.getElementById('chartNPK'),{type:'line',data:{labels:[],datasets:[makeDS('N',C.n),makeDS('P',C.p),makeDS('K',C.k)]},options:nO})
+        }
+        function selectPlant(p){activePlant=p;document.querySelectorAll('.plant-btn').forEach(b=>b.classList.toggle('active',b.dataset.plant===p));document.getElementById('ideal-plant-name').textContent=plantLabels[p];renderIdealTable();Object.keys(charts).forEach(k=>{if(k==='npk'){charts[k].options.plugins.annotation.annotations=idealAnnotations([{key:'n',color:C.n.border,label:'N'},{key:'p',color:C.p.border,label:'P'},{key:'k',color:C.k.border,label:'K'}])}else{charts[k].options.plugins.annotation.annotations=idealAnnotations([{key:k,color:C[k].border}])}charts[k].update()});fetchChart('temp');fetchChart('light');fetchChart('moisture');fetchChart('npk');fetch('/api/notify_plant',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plant:p})})}
+        function renderIdealTable(){const html=idealData[activePlant].map(r=>`<tr><td>${r.param}</td><td><span class="range-tag">${r.range}</span></td><td>${r.unit}</td></tr>`).join('');document.getElementById('ideal-table').innerHTML=html}
+        async function fetchChart(k,range='today'){const c=charts[k];const res=await fetch(`/api/get_data?range=${range}`);const data=await res.json();if(!data.length)return;c.data.labels=data.map((_,i)=>i+1);if(k==='npk'){const keys=['n','p','k'];keys.forEach((key,idx)=>{c.data.datasets[idx].data=data.map(d=>d['npk_'+key]);c.data.datasets[idx].errorBars=data.map(_=>uncertainty.npk)})}else{const f=k==='temp'?'temperature':k;c.data.datasets[0].data=data.map(d=>d[f]);c.data.datasets[0].errorBars=data.map(_=>uncertainty[k])}c.update()}
+        async function refreshStats(){const res=await fetch('/api/get_data?range=latest');const data=await res.json();if(data.length){const L=data[0];document.getElementById('cur-temp').innerHTML=`${L.temperature.toFixed(1)}<span class="unit">°C</span>`;document.getElementById('cur-moisture').innerHTML=`${L.moisture}<span class="unit">% VWC</span>`;document.getElementById('cur-npk').innerHTML=`N: ${L.npk_n.toFixed(1)} | P: ${L.npk_p.toFixed(1)} | K: ${L.npk_k.toFixed(1)}`;const resA=await fetch('/api/actuator_states');const a=await resA.json();let lV=L.light??'--';if(a&&a.relays&&a.relays[6]===1)lV=`4000 (${L.light})`;document.getElementById('cur-light').innerHTML=`${lV}<span class="unit">lux</span>`;if(a&&a.relays){document.querySelectorAll('.actuator-card').forEach((card,i)=>{const state=a.relays[i]===1;card.classList.toggle('active',state);card.querySelector('.actuator-status').textContent=state?'ON':'OFF';card.querySelector('.actuator-status').className='actuator-status '+(state?'on':'off')})}}}
+        window.onload=()=>{initCharts();renderIdealTable();refreshStats();selectPlant('basil');setInterval(refreshStats,5000);setInterval(()=>{fetchChart('temp');fetchChart('light');fetchChart('moisture');fetchChart('npk')},30000)}
+    </script>
+</body>
+</html>
