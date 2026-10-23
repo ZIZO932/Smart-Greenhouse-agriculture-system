@@ -1,60 +1,77 @@
-# Smart Greenhouse agriculture system
-## Description
-The Smart Greenhouse agriculture system uses a 4-layer design to protect crops like Basil from Egypt's heat and water shortages. A Raspberry Pi Pico W monitors industrial NPK and moisture sensors, then automatically triggers pumps and fans to keep everything in the perfect range. To top it off, an AI-powered camera on a circular track patrols the plants to catch diseases early.
----
+# Smart Greenhouse
 
+A greenhouse prototype I built to monitor growing conditions and control pumps, fans, lighting, and temperature hardware. I used sweet basil as the main crop for testing.
 
-## Why I Built This (The "Problem")
-Farming in Egypt is genuinely getting harder. Water stress and heatwaves are a real problem, and sensitive crops like Basil and Stevia are expensive to lose. Most of the "smart farming" products I found were just monitors — they'd send you an alert saying the soil was dry, and that was it. You still had to go do something about it.
-That gap is what pushed me to build this. I wanted a system that doesn't just report a problem, but fixes it. Nitrogen drops? The system pumps nitrogen. Temperature spikes? The fans come on. The whole point was to move from observation to actual automation.
+The project changed quite a bit between the CAD and the assembled version. The original design used a Raspberry Pi Pico W, and I switched to an ESP32 during the build after damaging the Pico. Both versions are kept in this repo.
 
----
+## Why I built it
 
-## The 3D Model: A Three-Layer Stack
-![Final 3D Model](https://stasis.hackclub-assets.com/images/1773986201013-t6jx9w.png)
+I wanted to connect sensor readings to something the greenhouse could actually do: water the soil, switch on a fan, or adjust the lights. Fitting the tanks, pumps, electronics, and growing bed into one structure was a big part of the work too.
 
-I designed this in a vertical configuration (inspired by city planning) to keep things clean and functional.
+## The layout
 
-* **Layer 1 (The Pump Room):** This is the foundation. It holds a 5L main water tank for irrigation and three 1L tanks for N, P, and K nutrients. I mapped out four water pumps here, each hooked up to its own plumbing line.
-* **Layer 2 (The Brain & Sensors):** This is where the electronics live. I installed industrial-grade NPK and moisture sensors here. The plumbing from the bottom passes through this layer to reach the top, which was a total nightmare to route without kinks.
-* **Layer 3 (The Grow Bed):** I went with a transparent acrylic finish for the soil bed so you can actually see the root health. It uses 360-degree bubblers to make sure water reaches everywhere with zero waste.
-* **The AI Track:** Encircling the top is a custom circular track. I built a small car that carries the Pi Zero and Camera, revolving around the plants every 30 minutes to catch every angle.
+![Greenhouse CAD](https://stasis.hackclub-assets.com/images/1773986201013-t6jx9w.png)
 
-   **This is the link for the 3d model in step i didnt upload it here because of its size** https://drive.google.com/file/d/1caedlcHiUJ2DHqxGwvVZIDkTWpKjw0eq/view?usp=drive_link
-  it is also found as a .zip file in the CAD folder
+The design has three main stacked sections, plus a camera track around the top:
 
----
+- **Tanks and pumps:** a 5 L water tank and three 1 L nutrient tanks, each with its own pumping line.
+- **Electronics:** the controller, power distribution, sensor connections, and relay circuitry.
+- **Growing bed:** the soil and plants, with tubing routed up from the tanks.
+- **Camera track:** a planned moving camera platform for taking pictures around the plants.
 
-## Schematic & PCB Design
-I spent a lot of time making sure this board wouldn't catch fire. Since the Pico is a low-power "brain," it can't handle the 12V needed for pumps and heaters.
+The CAD used a transparent bed. For the physical prototype, I built the frame from MDF and used a polyethylene cover for the growing layer.
 
-### The Schematic
-![Schematic Design](https://stasis.hackclub-assets.com/images/1773969096763-pgv2fr.png)
+[CAD files](CAD/) include the assembly and a ZIP archive. The larger STEP model is also [on Google Drive](https://drive.google.com/file/d/1caedlcHiUJ2DHqxGwvVZIDkTWpKjw0eq/view?usp=drive_link).
 
-The heart of the protection is the ULN2803A Darlington array. It acts as the mediator—taking tiny 3.3V signals from the Pico and using them to trigger the heavy-duty relays. I also built three distinct power rails to keep the noise down:
-* **12V:** For the (pumps/fans/heaters).
-* **5V:** For the MCUs (stepped down via LM2596T-5).
-* **3.3V:** For the sensitive sensors (stepped down via AMS1117-3.3).
+## Electronics
 
-I added 560-ohm resistors and a MAX485E chip to handle the RS-485 Modbus communication with the NPK sensor. It’s industrial-grade stuff, not that cheap analog junk.
+![Schematic](https://stasis.hackclub-assets.com/images/1773969096763-pgv2fr.png)
 
-### The PCB
-![PCB Layout](https://stasis.hackclub-assets.com/images/1773975539047-9t9nk7.png)
+The original PCB design uses a ULN2803A to drive the relays, with separate power rails for the controller, sensors, and higher-power hardware. The sensor setup includes a BH1750 light sensor, DS18B20 temperature sensing, capacitive soil moisture sensing, and an RS-485 connection for an NPK sensor through a MAX485.
 
-I had to fix mistakes with relay footprints and ensure the power rails were wide enough to handle the current. I added decoupling capacitors everywhere to soak up voltage spikes from the pumps. After a few DRC (Design Rule Check), the board is officially intersection free and ready for production.
+I had to fix relay footprints and adjust the routing while working through the board design.
 
----
+![PCB layout](https://stasis.hackclub-assets.com/images/1773975539047-9t9nk7.png)
 
-## AI Disease Detection
-The patrol car sends images back to the Pi Zero 2W for processing. I'm training the disease detection model on the**[New Plant Diseases Dataset on Kaggle](https://www.kaggle.com/datasets/vipoooool/new-plant-diseases-dataset)**, which has a solid variety of labeled leaf conditions.
-The workflow is simple: the car wakes up every 30 minutes, does one full lap around the plants scanning for spots or wilting, then returns to its dock to charge. Keeping it parked between scans was a deliberate choice to extend battery life.
+## Building it
 
+![Assembled frame](https://stasis.hackclub-assets.com/images/1781289180506-8guwwl.png)
 
+The first frame used nails and didn't hold the weight properly. I rebuilt the joints with screws, then routed the pumps and tubing through the layers.
 
+![Prototype electronics](https://stasis.hackclub-assets.com/images/1781287824241-pr5loz.jpeg)
 
+I assembled the regulated power supply and wired the sensors and relay-controlled hardware. This was also where I damaged the Pico and moved to the ESP32. My build notes record a six-hour integrated test of the sensors and actuators.
 
----
-## BOM
+## Dashboard and code
+
+![Dashboard](https://stasis.hackclub-assets.com/images/1781288574691-5xvsad.png)
+
+The dashboard work uses MQTT, Flask, and MySQL to collect and display readings. Grafana is shown in the build documentation too.
+
+There are a few different stages in the uploaded code:
+
+| File or folder | What it contains |
+| --- | --- |
+| [Firmware/main.py](Firmware/main.py) | Pico MicroPython code for sensor reading, relay control, and UART communication with a Pi Zero |
+| [website/app.py](website/app.py) | Flask app that receives MQTT messages, stores readings in MySQL, and serves dashboard endpoints |
+| [website/final_code_10204.ino](website/final_code_10204.ino) | ESP32 code excerpt with sensor functions, relay helpers, and plant profiles |
+| [code parts](code%20parts/) | Other Arduino and MQTT snippets from development |
+| [templates](templates/) | Dashboard HTML |
+
+The ESP32 excerpt currently generates sample NPK values in `updateFakeNPK()`. Those values aren't live nutrient measurements. It also doesn't include `setup()` and `loop()`, so the uploaded excerpt isn't a complete flashable sketch.
+
+The Flask app expects `templates/index.html` next to the app, while the uploaded HTML is named `templates/index (1).html` at the repo root. That path needs matching before running the dashboard locally. Broker addresses and database settings also need to match the local setup.
+
+## Camera and disease detection
+
+I planned a Pi Zero 2 W and Camera V2 platform that moves around the plants, takes images, and parks between scans. The proposed scan interval was 30 minutes, with a model trained using the [New Plant Diseases Dataset](https://www.kaggle.com/datasets/vipoooool/new-plant-diseases-dataset).
+
+The repo doesn't include trained model files or disease-detection results yet. This part is documented as a planned extension of the monitoring system.
+
+## Original parts estimate
+
+This is the parts list from the original design stage, including the Pico and camera hardware. Prices are recorded estimates from that stage.
 
 | Name | Cost Per Item (USD) | Quantity | Total (USD) | Link | Distributor |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -85,23 +102,9 @@ The workflow is simple: the car wakes up every 30 minutes, does one full lap aro
 | **Raspberry Pi Pico W** | 16.27 | 1 | 16.27 | [Link](https://www.ram-e-shop.com/ar/shop/rpi-pico-w-raspberry-pi-pico-w-wifi-8524) | RAM electronics |
 | **GRAND TOTAL** | | | **$189.94** | | |
 
+## More files
 
-## The Build: From CAD to Reality
-
-After the design got approved, it was time to build the prototype — and as always, the real world had different plans than the 3D model.
-
-![image](https://stasis.hackclub-assets.com/images/1781289180506-8guwwl.png)
-
-The body is built from MDF wood with a polyethylene cover for the grow layer. First attempt used nails, which couldn't hold the weight and the frame fell apart — switched to screws and it held solid after that. Pumps and tubing were routed through the layers down to the soil bed.
-
-![Circuit](https://stasis.hackclub-assets.com/images/1781287824241-pr5loz.jpeg)
-
-For the circuit, I soldered up the power supply (3.3V/5V step-downs, 10A fuse), wired in the sensors (BH1750, DS18B20, NPK via RS-485/MAX485) and the relay module driving the pumps, fans, Peltier module, and LEDs. Fried a Pico along the way and switched to an ESP32.
-
-![Dashboard](https://stasis.hackclub-assets.com/images/1781288574691-5xvsad.png)
-
-Real-time data flows through MQTT (Mosquitto) into a web dashboard built with HTML/CSS/JS and Grafana, showing live sensor readings against the ideal ranges for sweet basil.
-
-Ran a full 6-hour test with everything powered on together — sensors reading correctly, pumps responding properly, and all values staying within range. The Smart Greenhouse Agriculture System is built and working. 🌱
-
-
+- [Circuit, PCB, and Gerber files](Circuit%20%28Schematic%20and%20pcb%29/)
+- [BOM](BOM.csv)
+- [Build journal](JOURNAL%20%285%29.md)
+- [Database schema](website/database.sql)
