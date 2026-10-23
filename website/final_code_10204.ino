@@ -6,8 +6,8 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
-const char* ssid     = "04_el_top";
-const char* password = "Medo12345##";
+const char* ssid     = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
 
 const char* mqtt_server = "192.168.0.169";
 const int   mqtt_port   = 1883;
